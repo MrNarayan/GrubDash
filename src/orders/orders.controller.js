@@ -31,6 +31,7 @@ function bodyDataHas(propertyName) {
     const orderId = req.params.orderId;
     const foundorder = orders.find((order) => order.id === orderId);
     if (foundorder) {
+      res.locals.foundorder = foundorder;
       return next();
     }
     next({
@@ -69,14 +70,11 @@ function bodyDataHas(propertyName) {
   }
   
   function read(req, res) {
-    const orderId = req.params.orderId;
-    const foundorder = orders.find((order) => order.id === orderId);
-    res.json({ data: foundorder });
+    res.json({ data: res.locals.foundorder });
   }
   
   function update(req, res) {
     const { orderId } = req.params;
-    const foundorder = orders.find((order) => order.id === orderId);
     const { data: { id, deliverTo, mobileNumber,status, dishes } = {} } = req.body;
 
     if (id !== undefined && id !== null && id !== "" && id !== orderId) {
@@ -102,12 +100,12 @@ function bodyDataHas(propertyName) {
       res.status(400).json({ error: "status can't be invalid" });
     }
     // update the order
-    foundorder.deliverTo = deliverTo;
-    foundorder.mobileNumber = mobileNumber;
-    foundorder.status = status;
-    foundorder.dishes = dishes;
+    res.locals.foundorder.deliverTo = deliverTo;
+    res.locals.foundorder.mobileNumber = mobileNumber;
+    res.locals.foundorder.status = status;
+    res.locals.foundorder.dishes = dishes;
   
-    res.status(200).json({ data: foundorder });
+    res.status(200).json({ data: res.locals.foundorder });
   }
   
   function destroy(req, res) {

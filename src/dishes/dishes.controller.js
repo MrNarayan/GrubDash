@@ -28,14 +28,15 @@ function bodyDataHas(propertyName) {
   }
   
   function list(req, res) {
-    const { urlId } = req.params;
-    res.json({ data: dishes.filter(urlId ? dish => dish.id == urlId : () => true) });
+    const { dishId } = req.params;
+    res.json({ data: dishes.filter(urlId ? dish => dish.id == dishId : () => true) });
   }
   
   function dishExists(req, res, next) {
     const dishId = req.params.dishId;
     const founddish = dishes.find((dish) => dish.id === dishId);
     if (founddish) {
+      res.locals.founddish = founddish;
       return next();
     }
     next({
@@ -58,14 +59,11 @@ function bodyDataHas(propertyName) {
   }
   
   function read(req, res) {
-    const dishId = req.params.dishId;
-    const founddish = dishes.find((dish) => dish.id === dishId);
-    res.json({ data: founddish });
+    res.json({ data: res.locals.founddish });
   }
   
   function update(req, res) {
     const { dishId } = req.params;
-    const founddish = dishes.find((dish) => dish.id === dishId);
     const { data: { id, name, description,image_url, price } = {} } = req.body;
 
     if (!Number.isInteger(price)) {
@@ -77,12 +75,12 @@ function bodyDataHas(propertyName) {
     }
 
     // update the dish
-    founddish.name = name;
-    founddish.description = description;
-    founddish.image_url = image_url;
-    founddish.price = price;
+    res.locals.founddish.name = name;
+    res.locals.founddish.description = description;
+    res.locals.founddish.image_url = image_url;
+    res.locals.founddish.price = price;
   
-    res.status(200).json({ data: founddish });
+    res.status(200).json({ data: res.locals.founddish });
   }
   
   function destroy(req, res) {
